@@ -1,7 +1,8 @@
 ---
-- name: install packages
-     package:
-       name:
-         - htop
-         - tmux
-         - vim-nox
+- name: Install packages
+  package:
+    name:
+      - htop
+      - tmux
+      - vim-nox
+    state: present
