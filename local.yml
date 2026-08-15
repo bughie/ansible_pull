@@ -10,4 +10,6 @@
       changed_when: false
 
   tasks:
+    - include_tasks: tasks/users.yml  
+    - include_tasks: tasks/cron.yml   
     - include_tasks: tasks/package.yml
