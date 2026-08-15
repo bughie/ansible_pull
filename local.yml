@@ -7,6 +7,6 @@
   - name: install package
     apt:
       name: 
-	-htop
-	-tmux
-	-vim-nox
+	- htop
+	- tmux
+	- vim-nox
