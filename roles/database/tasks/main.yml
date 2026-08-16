@@ -1,0 +1,11 @@
+---
+- name: Install database server
+  ansible.builtin.apt:
+    name: "{{ database_package }}"
+    state: present
+
+- name: Ensure MySQL is enabled and running
+  ansible.builtin.service:
+    name: mysql
+    state: started
+    enabled: true

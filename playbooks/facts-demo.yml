@@ -1,0 +1,45 @@
+---
+- name: Working with Ansible Facts
+  hosts: all
+  become: true
+  gather_facts: true
+
+  tasks:
+    - name: Show operating system information
+      debug:
+        msg: |
+          Hostname: {{ ansible_hostname }}
+          FQDN: {{ ansible_fqdn }}
+          OS Family: {{ ansible_os_family }}
+          Distribution: {{ ansible_distribution }}
+          Version: {{ ansible_distribution_version }}
+          Kernel: {{ ansible_kernel }}
+
+    - name: Show hardware information
+      debug:
+        msg: |
+          CPU Cores: {{ ansible_processor_cores }}
+          Total Memory: {{ ansible_memtotal_mb }} MB
+          Architecture: {{ ansible_architecture }}
+
+    - name: Install package based on distribution
+      apt:
+        name: "{{ item }}"
+        state: present
+      loop: "{{ common_packages }}"
+      when: ansible_os_family == 'Debian'
+
+    - name: Configure swap if memory is less than 2GB
+      shell: |
+        fallocate -l 2G /swapfile
+        chmod 600 /swapfile
+        mkswap /swapfile
+        swapon /swapfile
+      args:
+        creates: /swapfile
+      when: ansible_memtotal_mb < 2048
+
+    - name: Save system facts to file
+      copy:
+        content: "{{ ansible_facts | to_nice_json }}"
+        dest: "/tmp/{{ ansible_hostname }}_facts.json"

@@ -1,0 +1,33 @@
+---
+- name: Apply common Linux baseline
+  hosts: all
+  become: true
+
+  roles:
+    - common
+    - security
+    - monitoring
+
+
+- name: Configure application servers
+  hosts: appservers
+  become: true
+
+  roles:
+    - appserver
+
+
+- name: Configure web servers
+  hosts: webservers
+  become: true
+
+  roles:
+    - webserver
+
+
+- name: Configure database servers
+  hosts: dbservers
+  become: true
+
+  roles:
+    - database

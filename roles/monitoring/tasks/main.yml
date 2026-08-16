@@ -1,0 +1,13 @@
+---
+- name: Install monitoring tools
+  ansible.builtin.apt:
+    name: "{{ monitoring_packages }}"
+    state: present
+
+- name: Enable sysstat data collection
+  ansible.builtin.lineinfile:
+    path: /etc/default/sysstat
+    regexp: '^ENABLED='
+    line: 'ENABLED="true"'
+    create: false
+  notify: Restart sysstat

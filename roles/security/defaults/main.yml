@@ -1,0 +1,10 @@
+---
+ssh_permit_root_login: "no"
+ssh_password_authentication: "no"
+ssh_pubkey_authentication: "yes"
+
+security_packages:
+  - ufw
+  - fail2ban
+  - auditd
+  - audispd-plugins

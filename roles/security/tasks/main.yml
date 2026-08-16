@@ -1,0 +1,23 @@
+---
+- name: Install security packages
+  ansible.builtin.apt:
+    name: "{{ security_packages }}"
+    state: present
+
+- name: Ensure SSH service is enabled
+  ansible.builtin.service:
+    name: ssh
+    state: started
+    enabled: true
+
+- name: Ensure fail2ban is enabled
+  ansible.builtin.service:
+    name: fail2ban
+    state: started
+    enabled: true
+
+- name: Ensure auditd is enabled
+  ansible.builtin.service:
+    name: auditd
+    state: started
+    enabled: true

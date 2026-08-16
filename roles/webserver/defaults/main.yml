@@ -1,0 +1,4 @@
+---
+webserver_package: nginx
+webserver_root: /var/www/html
+webserver_port: 80

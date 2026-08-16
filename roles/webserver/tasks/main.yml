@@ -1,0 +1,32 @@
+---
+- name: Install Nginx
+  ansible.builtin.apt:
+    name: "{{ webserver_package }}"
+    state: present
+
+- name: Ensure Nginx is enabled and running
+  ansible.builtin.service:
+    name: nginx
+    state: started
+    enabled: true
+
+- name: Deploy default web page
+  ansible.builtin.copy:
+    content: |
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <title>{{ inventory_hostname }}</title>
+      </head>
+      <body>
+        <h1>Server configured by Ansible</h1>
+        <p>Hostname: {{ inventory_hostname }}</p>
+        <p>Managed by Ansible.</p>
+      </body>
+      </html>
+    dest: "{{ webserver_root }}/index.html"
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Restart Nginx

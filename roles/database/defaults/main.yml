@@ -1,0 +1,3 @@
+---
+database_package: mysql-server
+database_port: 3306

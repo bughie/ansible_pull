@@ -1,0 +1,34 @@
+---
+appserver_packages:
+  - mc
+  - htop
+  - btop
+  - iftop
+  - iotop
+  - tmux
+  - vim
+  - nano
+  - curl
+  - wget
+  - git
+  - unzip
+  - zip
+  - rsync
+  - tree
+  - jq
+  - yq
+  - ripgrep
+  - fd-find
+  - ncdu
+  - lsof
+  - net-tools
+  - dnsutils
+  - traceroute
+  - mtr-tiny
+  - tcpdump
+  - nmap
+  - socat
+  - netcat-openbsd
+  - openssl
+  - ca-certificates
+  - gnupg

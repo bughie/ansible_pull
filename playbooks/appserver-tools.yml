@@ -1,0 +1,183 @@
+---
+- name: Provision Ubuntu Application Server Administration Tools
+  hosts: appservers
+  become: true
+  gather_facts: true
+
+  vars:
+    ubuntu_tools:
+      # Terminal and productivity
+      - mc
+      - tmux
+      - screen
+      - vim
+      - nano
+      - less
+      - bash-completion
+      - tree
+      - jq
+      - yq
+
+      # System monitoring
+      - htop
+      - btop
+      - iotop
+      - iftop
+      - ncdu
+      - sysstat
+      - psmisc
+      - lsof
+      - strace
+
+      # Networking
+      - curl
+      - wget
+      - net-tools
+      - iputils-ping
+      - dnsutils
+      - traceroute
+      - mtr-tiny
+      - tcpdump
+      - nmap
+      - socat
+      - netcat-openbsd
+
+      # File and data management
+      - rsync
+      - zip
+      - unzip
+      - tar
+      - gzip
+      - bzip2
+      - xz-utils
+      - file
+      - ripgrep
+      - fd-find
+
+      # Development / source control
+      - git
+      - build-essential
+
+      # Security / cryptography
+      - openssl
+      - ca-certificates
+      - gnupg
+      - acl
+      - libcap2-bin
+
+      # Package / repository management
+      - software-properties-common
+      - apt-transport-https
+
+      # Logging
+      - rsyslog
+
+  tasks:
+
+    - name: Display target server information
+      ansible.builtin.debug:
+        msg:
+          - "Server: {{ inventory_hostname }}"
+          - "IP: {{ ansible_host }}"
+          - "OS: {{ ansible_distribution }} {{ ansible_distribution_version }}"
+          - "Architecture: {{ ansible_architecture }}"
+
+    - name: Update APT package cache
+      ansible.builtin.apt:
+        update_cache: true
+        cache_valid_time: 3600
+
+    - name: Upgrade existing packages
+      ansible.builtin.apt:
+        upgrade: safe
+
+    - name: Install Ubuntu administration and troubleshooting tools
+      ansible.builtin.apt:
+        name: "{{ ubuntu_tools }}"
+        state: present
+
+    - name: Ensure rsyslog is running and enabled
+      ansible.builtin.service:
+        name: rsyslog
+        state: started
+        enabled: true
+
+    - name: Create application administration directory
+      ansible.builtin.file:
+        path: /opt/appadmin
+        state: directory
+        owner: root
+        group: root
+        mode: '0755'
+
+    - name: Create application server README
+      ansible.builtin.copy:
+        dest: /opt/appadmin/README.txt
+        owner: root
+        group: root
+        mode: '0644'
+        content: |
+          Application Server Administration Tools
+          =======================================
+
+          Terminal:
+            mc
+            tmux
+            htop
+            btop
+
+          Network:
+            iftop
+            nmap
+            tcpdump
+            mtr
+            traceroute
+            dig
+            curl
+
+          Storage:
+            ncdu
+            df
+            du
+            lsof
+
+          Troubleshooting:
+            strace
+            lsof
+            sysstat
+            psmisc
+
+          File Management:
+            rsync
+            mc
+            tree
+            ripgrep
+            fd
+
+          Security:
+            openssl
+            gpg
+            getcap
+            setfacl
+
+    - name: Verify installed administration tools
+      ansible.builtin.shell:
+        cmd: |
+          command -v mc
+          command -v htop
+          command -v btop
+          command -v iftop
+          command -v tmux
+          command -v curl
+          command -v jq
+          command -v nmap
+          command -v tcpdump
+          command -v ncdu
+          command -v rsync
+        executable: /bin/bash
+      register: tool_verification
+      changed_when: false
+
+    - name: Display tool verification results
+      ansible.builtin.debug:
+        var: tool_verification.stdout_lines

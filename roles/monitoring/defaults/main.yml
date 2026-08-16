@@ -1,0 +1,10 @@
+---
+monitoring_packages:
+  - htop
+  - btop
+  - iftop
+  - iotop
+  - sysstat
+  - ncdu
+  - lsof
+  - strace

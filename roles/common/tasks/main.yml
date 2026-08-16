@@ -1,0 +1,47 @@
+---
+- name: Update APT cache
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Upgrade installed packages
+  ansible.builtin.apt:
+    upgrade: safe
+
+- name: Install common administration packages
+  ansible.builtin.apt:
+    name:
+      - ca-certificates
+      - curl
+      - wget
+      - git
+      - vim
+      - nano
+      - unzip
+      - zip
+      - rsync
+      - jq
+      - tree
+      - htop
+      - btop
+      - tmux
+      - lsof
+      - net-tools
+      - dnsutils
+      - bash-completion
+    state: present
+
+- name: Set timezone
+  community.general.timezone:
+    name: "{{ system_timezone }}"
+
+- name: Ensure chrony is installed
+  ansible.builtin.apt:
+    name: chrony
+    state: present
+
+- name: Ensure chrony is enabled and running
+  ansible.builtin.service:
+    name: chrony
+    state: started
+    enabled: true
