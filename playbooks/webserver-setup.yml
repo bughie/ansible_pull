@@ -1,0 +1,101 @@
+---
+- name: Configure Ubuntu Web Servers
+  hosts: webservers
+  become: true
+  gather_facts: true
+
+  vars:
+    http_port: 80
+    https_port: 443
+    server_admin: admin@example.com
+    document_root: /var/www/html
+    required_packages:
+      - nginx
+      - ufw
+      - fail2ban
+      - certbot
+      - python3-certbot-nginx
+
+  handlers:
+    - name: Restart Nginx
+      service: { name: nginx, state: restarted }
+    - name: Reload Nginx
+      service: { name: nginx, state: reloaded }
+    - name: Restart fail2ban
+      service: { name: fail2ban, state: restarted }
+
+  pre_tasks:
+    - name: Update apt cache if older than 1 hour
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+  tasks:
+    - name: Install required packages
+      apt:
+        name: "{{ required_packages }}"
+        state: present
+
+    - name: Configure Nginx virtual host
+      template:
+        src: templates/nginx-vhost.conf.j2
+        dest: /etc/nginx/sites-available/default
+        mode: '0644'
+      notify: Reload Nginx
+      when: ansible_distribution_version is version('20.04', '>=')
+
+    - name: Enable UFW firewall
+      ufw: { state: enabled, policy: deny }
+      when: deployment_environment == 'production'
+
+    - name: Allow web traffic through firewall
+      ufw:
+        rule: allow
+        port: "{{ item }}"
+        proto: tcp
+      loop:
+        - "{{ http_port }}"
+        - "{{ https_port }}"
+      when: deployment_environment == 'production'
+
+    - name: Configure fail2ban for SSH protection
+      block:
+        - name: Create fail2ban jail configuration
+          copy:
+            content: |
+              [sshd]
+              enabled = true
+              port = ssh
+              filter = sshd
+              logpath = /var/log/auth.log
+              maxretry = 3
+              bantime = 3600
+            dest: /etc/fail2ban/jail.local
+            mode: '0644'
+          notify: Restart fail2ban
+        - name: Ensure fail2ban is running
+          service: { name: fail2ban, state: started, enabled: yes }
+      when: ansible_distribution == 'Ubuntu'
+
+    - name: Ensure document root exists
+      file:
+        path: "{{ document_root }}"
+        state: directory
+        owner: www-data
+        group: www-data
+        mode: '0755'
+
+    - name: Test Nginx configuration
+      command: nginx -t
+      register: nginx_test
+      changed_when: false
+      failed_when: nginx_test.rc != 0
+
+  post_tasks:
+    - name: Display server information
+      debug:
+        msg: |
+          Web server configured successfully!
+          Server: {{ ansible_hostname }}
+          IP: {{ ansible_default_ipv4.address }}
+          OS: {{ ansible_distribution }} {{ ansible_distribution_version }}

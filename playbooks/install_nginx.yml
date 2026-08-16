@@ -1,0 +1,21 @@
+---
+- name: Install and Configure Nginx Web Server
+  hosts: webservers
+  become: true  # Runs tasks with sudo privileges
+  
+  tasks:
+    # --- For Ubuntu / Debian Systems ---
+    - name: Update apt cache and install Nginx (Ubuntu/Debian)
+      ansible.builtin.apt:
+        name: nginx
+        state: latest
+        update_cache: yes
+      when: ansible_os_family == "Debian"
+
+    # --- Manage Nginx Service ---
+    - name: Start and enable Nginx service
+      ansible.builtin.service:
+        name: nginx
+        state: started
+        enabled: yes
+

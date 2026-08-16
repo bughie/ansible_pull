@@ -1,0 +1,57 @@
+---
+- name: Configure Web Servers with Nginx
+  hosts: webservers
+  become: true
+  gather_facts: true
+
+  vars:
+    package_name: nginx
+    web_root: /var/www/html
+    index_file: /var/www/html/index.html
+
+  tasks:
+
+    - name: Update APT package cache
+      ansible.builtin.apt:
+        update_cache: true
+        cache_valid_time: 3600
+
+    - name: Install Nginx web server
+      ansible.builtin.apt:
+        name: "{{ package_name }}"
+        state: present
+
+    - name: Ensure Nginx service is enabled and running
+      ansible.builtin.service:
+        name: nginx
+        state: started
+        enabled: true
+
+    - name: Create custom Nginx index page
+      ansible.builtin.copy:
+        content: |
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Configured by Ansible</title>
+          </head>
+          <body>
+            <h1>Server configured by Ansible</h1>
+            <p>This web server is managed by Ansible.</p>
+          </body>
+          </html>
+        dest: "{{ index_file }}"
+        owner: root
+        group: root
+        mode: '0644'
+      notify:
+        - Restart Nginx
+
+  handlers:
+
+    - name: Restart Nginx
+      ansible.builtin.service:
+        name: nginx
+        state: restarted
