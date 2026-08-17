@@ -1,4 +1,6 @@
 ---
+# Global Linux baseline
+
 system_timezone: America/Los_Angeles
 
 common_packages:
@@ -20,3 +22,5 @@ common_packages:
   - net-tools
   - dnsutils
   - bash-completion
+
+enable_system_updates: true

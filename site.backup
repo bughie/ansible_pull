@@ -1,17 +1,13 @@
 ---
-- name: Apply Linux baseline
+- name: Apply common Linux baseline
   hosts: all
   become: true
 
   roles:
     - common
-
-- name: Configure monitoring baseline
-  hosts: all
-  become: true
-
-  roles:
+    - security
     - monitoring
+
 
 - name: Configure application servers
   hosts: appservers
@@ -20,12 +16,14 @@
   roles:
     - appserver
 
+
 - name: Configure web servers
   hosts: webservers
   become: true
 
   roles:
     - webserver
+
 
 - name: Configure database servers
   hosts: dbservers

@@ -22,9 +22,9 @@
       - rsync
       - jq
       - tree
-      - tmux
       - htop
       - btop
+      - tmux
       - lsof
       - net-tools
       - dnsutils
@@ -35,22 +35,13 @@
   community.general.timezone:
     name: "{{ system_timezone }}"
 
-- name: Install chrony
+- name: Ensure chrony is installed
   ansible.builtin.apt:
     name: chrony
     state: present
 
-- name: Check chrony service
-  ansible.builtin.systemd_service:
-    name: chrony
-    daemon_reload: true
-  register: chrony_service_check
-  failed_when: false
-  changed_when: false
-
 - name: Ensure chrony is enabled and running
-  ansible.builtin.systemd_service:
+  ansible.builtin.service:
     name: chrony
     state: started
     enabled: true
-  when: chrony_service_check.status is defined
