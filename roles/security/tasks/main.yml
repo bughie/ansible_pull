@@ -1,23 +1,152 @@
 ---
+# ============================================================
+# SECURITY BASELINE
+# ============================================================
+
 - name: Install security packages
   ansible.builtin.apt:
-    name: "{{ security_packages }}"
+    name:
+      - fail2ban
+      - auditd
+      - audispd-plugins
+      - unattended-upgrades
     state: present
+    update_cache: true
 
-- name: Ensure SSH service is enabled
-  ansible.builtin.service:
-    name: ssh
-    state: started
-    enabled: true
+# ============================================================
+# SSH HARDENING
+# ============================================================
 
-- name: Ensure fail2ban is enabled
-  ansible.builtin.service:
+- name: Create SSH hardening configuration
+  ansible.builtin.copy:
+    dest: /etc/ssh/sshd_config.d/99-ansible-ssh-hardening.conf
+    owner: root
+    group: root
+    mode: '0644'
+    content: |
+      # Managed by Ansible
+      # DO NOT EDIT MANUALLY
+
+      PermitRootLogin no
+      PasswordAuthentication no
+      PubkeyAuthentication yes
+      KbdInteractiveAuthentication no
+      ChallengeResponseAuthentication no
+      UsePAM yes
+  notify: Restart SSH
+
+- name: Validate SSH configuration
+  ansible.builtin.command:
+    cmd: sshd -t
+  changed_when: false
+
+# ============================================================
+# FAIL2BAN
+# ============================================================
+
+- name: Enable and start fail2ban
+  ansible.builtin.systemd:
     name: fail2ban
-    state: started
     enabled: true
+    state: started
 
-- name: Ensure auditd is enabled
-  ansible.builtin.service:
+# ============================================================
+# AUDITD
+# ============================================================
+
+- name: Enable and start auditd
+  ansible.builtin.systemd:
     name: auditd
-    state: started
     enabled: true
+    state: started
+
+# ============================================================
+# UNATTENDED SECURITY UPDATES
+# ============================================================
+
+- name: Enable unattended security updates
+  ansible.builtin.copy:
+    dest: /etc/apt/apt.conf.d/20auto-upgrades
+    owner: root
+    group: root
+    mode: '0644'
+    content: |
+      APT::Periodic::Update-Package-Lists "1";
+      APT::Periodic::Unattended-Upgrade "1";
+
+# ============================================================
+# FILESYSTEM PERMISSIONS
+# ============================================================
+
+- name: Secure SSH directory
+  ansible.builtin.file:
+    path: /etc/ssh
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Secure SSH configuration
+  ansible.builtin.file:
+    path: /etc/ssh/sshd_config
+    owner: root
+    group: root
+    mode: '0644'
+
+# ============================================================
+# UFW FIREWALL BASELINE
+# ============================================================
+
+- name: Install UFW
+  ansible.builtin.apt:
+    name: ufw
+    state: present
+    update_cache: true
+
+- name: Allow SSH
+  community.general.ufw:
+    rule: allow
+    port: "22"
+    proto: tcp
+
+- name: Allow HTTP
+  community.general.ufw:
+    rule: allow
+    port: "80"
+    proto: tcp
+
+- name: Allow HTTPS
+  community.general.ufw:
+    rule: allow
+    port: "443"
+    proto: tcp
+
+- name: Allow application port
+  community.general.ufw:
+    rule: allow
+    port: "8080"
+    proto: tcp
+
+- name: Set UFW default incoming policy
+  community.general.ufw:
+    direction: incoming
+    policy: deny
+
+- name: Set UFW default outgoing policy
+  community.general.ufw:
+    direction: outgoing
+    policy: allow
+
+- name: Enable UFW
+  community.general.ufw:
+    state: enabled
+    logging: "on"
+
+- name: Display UFW status
+  ansible.builtin.command:
+    cmd: ufw status verbose
+  register: ufw_status
+  changed_when: false
+
+- name: Show UFW status
+  ansible.builtin.debug:
+    var: ufw_status.stdout_lines

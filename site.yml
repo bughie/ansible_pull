@@ -4,7 +4,8 @@
   become: true
 
   roles:
-    - common
+  - common
+  - security
 
 - name: Configure monitoring baseline
   hosts: all

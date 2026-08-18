@@ -1,10 +1,25 @@
 ---
+# SSH Security
 ssh_permit_root_login: "no"
 ssh_password_authentication: "no"
 ssh_pubkey_authentication: "yes"
 
+# Firewall
+security_enable_ufw: false
+
+# Fail2ban
+security_enable_fail2ban: true
+
+# Auditd
+security_enable_auditd: true
+
+# Automatic security updates
+security_enable_unattended_upgrades: true
+
+# Security packages
 security_packages:
   - ufw
   - fail2ban
   - auditd
   - audispd-plugins
+  - unattended-upgrades

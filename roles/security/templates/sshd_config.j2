@@ -1,0 +1,26 @@
+# ============================================================
+# Managed by Ansible
+# DO NOT EDIT MANUALLY
+# ============================================================
+
+Port {{ security_ssh_port }}
+
+PermitRootLogin {{ security_ssh_permit_root_login }}
+
+PasswordAuthentication {{ security_ssh_password_authentication }}
+
+PubkeyAuthentication {{ security_ssh_pubkey_authentication }}
+
+MaxAuthTries {{ security_ssh_max_auth_tries }}
+
+LoginGraceTime {{ security_ssh_login_grace_time }}
+
+ClientAliveInterval {{ security_ssh_client_alive_interval }}
+
+ClientAliveCountMax {{ security_ssh_client_alive_count_max }}
+
+X11Forwarding {{ security_ssh_x11_forwarding }}
+
+AllowAgentForwarding {{ security_ssh_allow_agent_forwarding }}
+
+AllowTcpForwarding {{ security_ssh_allow_tcp_forwarding }}

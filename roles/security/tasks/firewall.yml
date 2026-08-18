@@ -1,0 +1,20 @@
+---
+- name: Allow SSH
+  community.general.ufw:
+    rule: allow
+    port: "{{ security_ufw_ssh_port }}"
+    proto: tcp
+
+- name: Set UFW default incoming policy
+  community.general.ufw:
+    direction: incoming
+    policy: "{{ security_ufw_default_incoming }}"
+
+- name: Set UFW default outgoing policy
+  community.general.ufw:
+    direction: outgoing
+    policy: "{{ security_ufw_default_outgoing }}"
+
+- name: Enable UFW
+  community.general.ufw:
+    state: enabled

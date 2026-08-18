@@ -1,0 +1,18 @@
+# Managed by Ansible
+# SSH Security Baseline
+# Do not edit manually
+
+PermitRootLogin no
+PasswordAuthentication no
+KbdInteractiveAuthentication no
+PubkeyAuthentication yes
+
+X11Forwarding no
+AllowTcpForwarding no
+PermitEmptyPasswords no
+
+MaxAuthTries 4
+LoginGraceTime 30
+
+ClientAliveInterval 300
+ClientAliveCountMax 2
