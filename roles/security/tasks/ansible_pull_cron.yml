@@ -1,0 +1,30 @@
+---
+- name: Ensure git and cron dependencies are present
+  ansible.builtin.apt:
+    name:
+      - git
+      - cron
+    state: present
+    update_cache: true
+
+- name: Create local log directory for ansible-pull executions
+  ansible.builtin.file:
+    path: /var/log/ansible-pull
+    state: directory
+    owner: root
+    group: root
+    mode: '0750'
+
+- name: Configure hourly cron job for automated drift remediation via ansible-pull
+  ansible.builtin.cron:
+    name: "Automated Ansible-Pull Security Drift Remediation"
+    minute: "0"
+    hour: "*"
+    user: root
+    job: >-
+      /usr/bin/ansible-pull
+      -U https://github.com/bughie/ansible_pull.git
+      -i /etc/ansible/hosts
+      site.yml
+      >> /var/log/ansible-pull/autoremode.log 2>&1
+    state: present

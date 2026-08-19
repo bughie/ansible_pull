@@ -1,0 +1,19 @@
+---
+- name: Append Baseline Audit Report to persistent system log
+  ansible.builtin.blockinfile:
+    path: /var/log/security-baseline-audit.log
+    create: true
+    owner: root
+    group: root
+    mode: '0600'
+    marker: "# {mark} ANSIBLE AUDIT REPORT - {{ ansible_date_time.iso8601 }}"
+    block: |
+      Host:                      {{ inventory_hostname }}
+      1. SSH Root Disabled:      {{ 'PASS' if ssh_check.rc == 0 else 'FAIL' }}
+      2. UFW Firewall:          {{ 'PASS' if 'Status: active' in ufw_check.stdout else 'FAIL' }}
+      3. Fail2ban Service:       {{ 'PASS' if fail2ban_check.stdout == 'active' else 'FAIL' }}
+      4. Auditd Logging:         {{ 'PASS' if auditd_check.rc == 0 else 'FAIL' }}
+      5. Unattended Updates:     {{ 'PASS' if unattended_check.rc == 0 else 'FAIL' }}
+      6. PAM Password Quality:   {{ 'PASS' if pam_check.rc == 0 else 'FAIL' }}
+      7. /etc/shadow Mode (0600): {{ 'PASS' if shadow_stat.stat.mode == '0600' else 'FAIL' }}
+      8. Sysctl ASLR Hardening:  {{ 'PASS' if 'kernel.randomize_va_space = 2' in sysctl_check.stdout else 'FAIL' }}

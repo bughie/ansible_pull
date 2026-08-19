@@ -1,0 +1,13 @@
+---
+- name: Ensure logrotate is installed
+  ansible.builtin.apt:
+    name: logrotate
+    state: present
+
+- name: Deploy logrotate configuration for ansible-pull execution logs
+  ansible.builtin.template:
+    src: ansible-pull-logrotate.j2
+    dest: /etc/logrotate.d/ansible-pull
+    owner: root
+    group: root
+    mode: '0644'

@@ -277,5 +277,11 @@
 - name: Include Sysctl Kernel Hardening tasks
   ansible.builtin.include_tasks: sysctl.yml
 
+- name: Include Automated Drift Remediation tasks
+  ansible.builtin.include_tasks: ansible_pull_cron.yml
+
 - name: Include Security Validation tasks
   ansible.builtin.include_tasks: validation.yml
+
+- name: Include Security Baseline Logging tasks
+  ansible.builtin.include_tasks: audit_logging.yml
