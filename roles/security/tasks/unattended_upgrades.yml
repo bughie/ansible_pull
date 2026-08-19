@@ -1,0 +1,29 @@
+---
+- name: Ensure unattended-upgrades is installed
+  ansible.builtin.apt:
+    name:
+      - unattended-upgrades
+    state: present
+    update_cache: true
+
+- name: Configure unattended-upgrades origins and behavior
+  ansible.builtin.template:
+    src: 50unattended-upgrades.j2
+    dest: /etc/apt/apt.conf.d/50unattended-upgrades
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Enable automatic daily APT update and upgrade schedule
+  ansible.builtin.template:
+    src: 20auto-upgrades.j2
+    dest: /etc/apt/apt.conf.d/20auto-upgrades
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Ensure unattended-upgrades service is active and enabled
+  ansible.builtin.service:
+    name: unattended-upgrades
+    state: started
+    enabled: true

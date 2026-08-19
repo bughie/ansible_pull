@@ -1,0 +1,30 @@
+# First rule - delete all existing rules
+-D
+
+# Set buffer size and failure mode (1 = printk, 2 = panic)
+-b 8192
+-f 1
+
+# ==========================================
+# 1. Critical File Integrity & Access Checks
+# ==========================================
+-w /etc/passwd -p wa -k identity_changes
+-w /etc/shadow -p wa -k identity_changes
+-w /etc/group -p wa -k identity_changes
+-w /etc/sudoers -p wa -k privilege_changes
+-w /etc/sudoers.d/ -p wa -k privilege_changes
+-w /var/log/lastlog -p wa -k logins
+
+# ==========================================
+# 2. System Call & Privilege Execution Logging
+# ==========================================
+# Monitor execution of privilege escalation commands
+-a always,exit -F arch=b64 -S execve -C uid!=euid -F euid=0 -k elevated_privs
+-a always,exit -F arch=b32 -S execve -C uid!=euid -F euid=0 -k elevated_privs
+
+# Log system time adjustments
+-a always,exit -F arch=b64 -S adjtimex -S settimeofday -S clock_settime -k time_change
+-a always,exit -F arch=b32 -S adjtimex -S settimeofday -S clock_settime -k time_change
+
+# Make configuration immutable (requires reboot to alter audit rules)
+-e 2

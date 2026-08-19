@@ -20,3 +20,11 @@
     enabled: true
     state: started
 
+- name: Explicitly disable SSH root login
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^\s*#?\s*PermitRootLogin\s+'
+    line: 'PermitRootLogin no'
+    state: present
+    validate: '/usr/sbin/sshd -t -f %s'
+  notify: Restart sshd

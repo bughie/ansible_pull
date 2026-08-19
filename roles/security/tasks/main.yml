@@ -252,3 +252,30 @@
 
 - name: Security Baseline Validation
   ansible.builtin.include_tasks: validation.yml
+
+- name: Include SSH hardening tasks
+  ansible.builtin.include_tasks: ssh.yml
+
+- name: Include UFW firewall tasks
+  ansible.builtin.include_tasks: ufw.yml
+
+- name: Include Fail2ban tasks
+  ansible.builtin.include_tasks: fail2ban.yml
+
+- name: Include Auditd tasks
+  ansible.builtin.include_tasks: auditd.yml
+
+- name: Include Unattended Security Updates tasks
+  ansible.builtin.include_tasks: unattended_upgrades.yml
+
+- name: Include Password Policy tasks
+  ansible.builtin.include_tasks: password_policy.yml
+
+- name: Include Filesystem Permissions tasks
+  ansible.builtin.include_tasks: filesystem_permissions.yml
+
+- name: Include Sysctl Kernel Hardening tasks
+  ansible.builtin.include_tasks: sysctl.yml
+
+- name: Include Security Validation tasks
+  ansible.builtin.include_tasks: validation.yml

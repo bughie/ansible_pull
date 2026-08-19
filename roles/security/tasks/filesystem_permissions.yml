@@ -1,0 +1,54 @@
+---
+- name: Set system-wide default UMASK to 027 in /etc/profile
+  ansible.builtin.lineinfile:
+    path: /etc/profile
+    regexp: '^\s*umask\s+'
+    line: 'umask 027'
+    state: present
+
+- name: Set system-wide default UMASK to 027 in /etc/bash.bashrc
+  ansible.builtin.lineinfile:
+    path: /etc/bash.bashrc
+    regexp: '^\s*umask\s+'
+    line: 'umask 027'
+    state: present
+
+- name: Enforce strict ownership and permissions on critical security files
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    owner: "{{ item.owner | default('root') }}"
+    group: "{{ item.group | default('root') }}"
+    mode: "{{ item.mode }}"
+    state: file
+  loop:
+    - { path: '/etc/passwd', mode: '0644' }
+    - { path: '/etc/shadow', mode: '0600' }
+    - { path: '/etc/group', mode: '0644' }
+    - { path: '/etc/gshadow', mode: '0600' }
+    - { path: '/etc/crontab', mode: '0600' }
+
+- name: Enforce strict permissions on cron directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    owner: root
+    group: root
+    mode: '0700'
+    state: directory
+  loop:
+    - /etc/cron.hourly
+    - /etc/cron.daily
+    - /etc/cron.weekly
+    - /etc/cron.monthly
+    - /etc/cron.d
+
+- name: Find world-writable files in system paths
+  ansible.builtin.command:
+    cmd: find / -xdev -type f \( -perm -0002 -a ! -perm -1000 \)
+  register: world_writable_files
+  changed_when: false
+  failed_when: false
+
+- name: Report world-writable files if found
+  ansible.builtin.debug:
+    msg: "WARNING: Found world-writable files: {{ world_writable_files.stdout_lines }}"
+  when: world_writable_files.stdout_lines | length > 0

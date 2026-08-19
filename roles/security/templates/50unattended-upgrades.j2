@@ -1,0 +1,19 @@
+// Restrict updates strictly to Security origin repositories
+Unattended-Upgrade::Allowed-Origins {
+    "${distro_id}:${distro_codename}-security";
+    "${distro_id}ESMApps:${distro_codename}-apps-security";
+    "${distro_id}ESM:${distro_codename}-infra-security";
+};
+
+// Package blacklists (prevent unexpected service restarts)
+Unattended-Upgrade::Package-Blacklist {
+};
+
+// Cleanup unused dependency packages automatically
+Unattended-Upgrade::Remove-Unused-Dependencies "true";
+Unattended-Upgrade::Remove-Unused-Kernel-Packages "true";
+
+// Automatic Reboot Settings
+Unattended-Upgrade::Automatic-Reboot "true";
+Unattended-Upgrade::Automatic-Reboot-WithUsers "false";
+Unattended-Upgrade::Automatic-Reboot-Time "03:00";

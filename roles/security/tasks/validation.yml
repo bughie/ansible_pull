@@ -20,3 +20,92 @@
 - name: Display validation message
   ansible.builtin.debug:
     msg: "SECURITY BASELINE COMPLETED AND VALIDATED ON {{ inventory_hostname }}"
+
+# ==========================================
+# 1. SSH Verification
+# ==========================================
+- name: Check SSH root login status
+  ansible.builtin.command: grep -E "^PermitRootLogin\s+no" /etc/ssh/sshd_config
+  register: ssh_check
+  changed_when: false
+  failed_when: false
+
+# ==========================================
+# 2. UFW Verification
+# ==========================================
+- name: Check UFW active state
+  ansible.builtin.command: ufw status
+  register: ufw_check
+  changed_when: false
+  failed_when: false
+
+# ==========================================
+# 3. Fail2ban Verification
+# ==========================================
+- name: Check Fail2ban service status
+  ansible.builtin.command: systemctl is-active fail2ban
+  register: fail2ban_check
+  changed_when: false
+  failed_when: false
+
+# ==========================================
+# 4. Auditd Verification
+# ==========================================
+- name: Check Auditd rule loading status
+  ansible.builtin.command: auditctl -s
+  register: auditd_check
+  changed_when: false
+  failed_when: false
+
+# ==========================================
+# 5. Unattended Updates Verification
+# ==========================================
+- name: Check Unattended-Upgrades APT config
+  ansible.builtin.command: grep -E 'APT::Periodic::Unattended-Upgrade "1"' /etc/apt/apt.conf.d/20auto-upgrades
+  register: unattended_check
+  changed_when: false
+  failed_when: false
+
+# ==========================================
+# 6. Password Policy / PAM Verification
+# ==========================================
+- name: Check PAM minimum password length
+  ansible.builtin.command: grep -E "^minlen\s*=\s*14" /etc/security/pwquality.conf
+  register: pam_check
+  changed_when: false
+  failed_when: false
+
+# ==========================================
+# 7. Filesystem Permissions Verification
+# ==========================================
+- name: Check /etc/shadow file permissions
+  ansible.builtin.stat:
+    path: /etc/shadow
+  register: shadow_stat
+
+# ==========================================
+# 8. Sysctl Verification
+# ==========================================
+- name: Check ASLR status (sysctl)
+  ansible.builtin.command: sysctl kernel.randomize_va_space
+  register: sysctl_check
+  changed_when: false
+  failed_when: false
+
+# ==========================================
+# Aggregated Security Baseline Summary
+# ==========================================
+- name: Display Baseline Audit Report
+  ansible.builtin.debug:
+    msg:
+      - "=== SECURITY BASELINE COMPLIANCE REPORT ==="
+      - "Host:                      {{ inventory_hostname }}"
+      - "1. SSH Root Disabled:      {{ 'PASS' if ssh_check.rc == 0 else 'FAIL' }}"
+      - "2. UFW Firewall:          {{ 'PASS' if 'Status: active' in ufw_check.stdout else 'FAIL' }}"
+      - "3. Fail2ban Service:       {{ 'PASS' if fail2ban_check.stdout == 'active' else 'FAIL' }}"
+      - "4. Auditd Logging:         {{ 'PASS' if auditd_check.rc == 0 else 'FAIL' }}"
+      - "5. Unattended Updates:     {{ 'PASS' if unattended_check.rc == 0 else 'FAIL' }}"
+      - "6. PAM Password Quality:   {{ 'PASS' if pam_check.rc == 0 else 'FAIL' }}"
+      - "7. /etc/shadow Mode (0600): {{ 'PASS' if shadow_stat.stat.mode == '0600' else 'FAIL' }}"
+      - "8. Sysctl ASLR Hardening:  {{ 'PASS' if 'kernel.randomize_va_space = 2' in sysctl_check.stdout else 'FAIL' }}"
+      - "=========================================="
