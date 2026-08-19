@@ -1,0 +1,30 @@
+---
+- name: Install auditd and plugins
+  ansible.builtin.apt:
+    name:
+      - auditd
+      - audispd-plugins
+    state: present
+    update_cache: true
+
+- name: Configure custom audit rules
+  ansible.builtin.blockinfile:
+    path: /etc/audit/rules.d/audit.rules
+    create: true
+    mode: '0600'
+    block: |
+      # Monitor changes to sudoers and SSH
+      -w /etc/sudoers -p wa -k sudoers_changes
+      -w /etc/sudoers.d/ -p wa -k sudoers_changes
+      -w /etc/ssh/sshd_config -p wa -k sshd_config_changes
+
+      # Monitor user authentication files
+      -w /etc/passwd -p wa -k identity_changes
+      -w /etc/shadow -p wa -k identity_changes
+      -w /etc/group -p wa -k identity_changes
+
+- name: Enable and restart Auditd service
+  ansible.builtin.systemd:
+    name: auditd
+    state: restarted
+    enabled: true

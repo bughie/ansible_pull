@@ -1,0 +1,8 @@
+---
+# Firewall ports required by application servers
+
+ufw_allowed_tcp_ports:
+  - 22
+  - 80
+  - 443
+  - 8080

@@ -1,0 +1,26 @@
+---
+- name: Ensure UFW is installed
+  ansible.builtin.apt:
+    name: ufw
+    state: present
+
+- name: Set default UFW incoming policy to DENY
+  community.general.ufw:
+    direction: incoming
+    policy: "{{ ufw_default_input_policy | default('deny') }}"
+
+- name: Set default UFW outgoing policy to ALLOW
+  community.general.ufw:
+    direction: outgoing
+    policy: "{{ ufw_default_output_policy | default('allow') }}"
+
+- name: Allow required TCP ports
+  community.general.ufw:
+    rule: allow
+    port: "{{ item }}"
+    proto: tcp
+  loop: "{{ ufw_allowed_tcp_ports }}"
+
+- name: Enable UFW service
+  community.general.ufw:
+    state: enabled

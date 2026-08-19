@@ -43,13 +43,13 @@
 # ============================================================
 # FAIL2BAN
 # ============================================================
-
-- name: Enable and start fail2ban
-  ansible.builtin.systemd:
-    name: fail2ban
-    enabled: true
-    state: started
-
+#
+#- name: Enable and start fail2ban
+#  ansible.builtin.systemd:
+#    name: fail2ban
+#    enabled: true
+#    state: started
+#
 # ============================================================
 # AUDITD
 # ============================================================
@@ -150,3 +150,105 @@
 - name: Show UFW status
   ansible.builtin.debug:
     var: ufw_status.stdout_lines
+
+# ============================================================
+# UFW FIREWALL
+# ============================================================
+
+- name: Install UFW
+  ansible.builtin.apt:
+    name: ufw
+    state: present
+    update_cache: true
+
+- name: Set UFW default incoming policy
+  community.general.ufw:
+    direction: incoming
+    policy: deny
+
+- name: Set UFW default outgoing policy
+  community.general.ufw:
+    direction: outgoing
+    policy: allow
+
+- name: Allow required TCP ports
+  community.general.ufw:
+    rule: allow
+    port: "{{ item }}"
+    proto: tcp
+  loop: "{{ ufw_allowed_tcp_ports }}"
+
+- name: Enable UFW
+  community.general.ufw:
+    state: enabled
+
+- name: Enable UFW logging
+  community.general.ufw:
+    logging: "low"
+
+# ============================================================
+# FAIL2BAN
+# ============================================================
+
+- name: Install Fail2ban
+  ansible.builtin.apt:
+    name: fail2ban
+    state: present
+    update_cache: true
+
+- name: Ensure Fail2ban configuration directory exists
+  ansible.builtin.file:
+    path: /etc/fail2ban/jail.d
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Configure Fail2ban SSH protection
+  ansible.builtin.copy:
+    dest: /etc/fail2ban/jail.d/sshd.local
+    owner: root
+    group: root
+    mode: "0644"
+    content: |
+      [sshd]
+      enabled = true
+      port = ssh
+      backend = systemd
+      maxretry = 5
+      findtime = 10m
+      bantime = 1h
+  notify: Restart Fail2ban
+
+- name: Enable and start Fail2ban
+  ansible.builtin.systemd:
+    name: fail2ban
+    enabled: true
+    state: started
+
+- name: SSH Hardening
+  ansible.builtin.include_tasks: ssh.yml
+
+- name: UFW Firewall
+  ansible.builtin.include_tasks: ufw.yml
+
+- name: Fail2ban Configuration
+  ansible.builtin.include_tasks: fail2ban.yml
+
+- name: Auditd Monitoring
+  ansible.builtin.include_tasks: auditd.yml
+
+- name: Automatic Security Updates
+  ansible.builtin.include_tasks: security_updates.yml
+
+- name: Password Policy
+  ansible.builtin.include_tasks: password_policy.yml
+
+- name: Sysctl Hardening
+  ansible.builtin.include_tasks: sysctl.yml
+
+- name: Filesystem Permissions
+  ansible.builtin.include_tasks: filesystem.yml
+
+- name: Security Baseline Validation
+  ansible.builtin.include_tasks: validation.yml

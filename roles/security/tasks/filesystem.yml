@@ -1,0 +1,13 @@
+---
+- name: Secure critical system configuration file permissions
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    owner: root
+    group: root
+    mode: "{{ item.mode }}"
+  loop:
+    - { path: '/etc/shadow', mode: '0600' }
+    - { path: '/etc/gshadow', mode: '0600' }
+    - { path: '/etc/passwd', mode: '0644' }
+    - { path: '/etc/group', mode: '0644' }
+    - { path: '/etc/crontab', mode: '0600' }

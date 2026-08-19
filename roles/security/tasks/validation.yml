@@ -1,0 +1,22 @@
+---
+- name: Verify UFW status
+  ansible.builtin.command: ufw status
+  register: ufw_status
+  changed_when: false
+  failed_when: "'active' not in ufw_status.stdout"
+
+- name: Verify Fail2ban status
+  ansible.builtin.systemd:
+    name: fail2ban
+  register: fail2ban_status
+  failed_when: fail2ban_status.status.ActiveState != "active"
+
+- name: Verify Auditd status
+  ansible.builtin.systemd:
+    name: auditd
+  register: auditd_status
+  failed_when: auditd_status.status.ActiveState != "active"
+
+- name: Display validation message
+  ansible.builtin.debug:
+    msg: "SECURITY BASELINE COMPLETED AND VALIDATED ON {{ inventory_hostname }}"

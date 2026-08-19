@@ -1,7 +1,7 @@
 ---
-- name: Load default security variables using role_path
+- name: Ensure default security variables are loaded
   ansible.builtin.include_vars:
-    file: "{{ role_path }}/defaults/main.yml"
+    file: roles/security/defaults/main.yml
 
 - name: Ensure Fail2ban package is installed
   ansible.builtin.apt:

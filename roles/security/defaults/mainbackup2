@@ -1,22 +1,22 @@
 ---
 # ==========================================
-# 1. SSH Security
+# 1. SSH Security (Prefixed for template compatibility)
 # ==========================================
 security_ssh_port: 22
 security_ssh_permit_root_login: "no"
 security_ssh_password_authentication: "no"
 security_ssh_pubkey_authentication: "yes"
-security_ssh_max_auth_tries: 3
-security_ssh_client_alive_interval: 300
-security_ssh_client_alive_count_max: 2
-security_ssh_x11_forwarding: "no"
-security_ssh_allow_agent_forwarding: "no"
+
+# Map old aliases if referenced elsewhere in your role
+ssh_permit_root_login: "{{ security_ssh_permit_root_login }}"
+ssh_password_authentication: "{{ security_ssh_password_authentication }}"
+ssh_pubkey_authentication: "{{ security_ssh_pubkey_authentication }}"
 
 # ==========================================
 # 2. UFW Firewall
 # ==========================================
 security_enable_ufw: true
-ufw_default_input_policy: "deny"
+ufw_default_input_policy: "drop"
 ufw_default_output_policy: "allow"
 ufw_allowed_tcp_ports:
   - "22"
@@ -25,9 +25,9 @@ ufw_allowed_tcp_ports:
 # 3. Fail2ban
 # ==========================================
 security_enable_fail2ban: true
-security_fail2ban_bantime: "1h"
-security_fail2ban_findtime: "10m"
-security_fail2ban_maxretry: 5
+fail2ban_bantime: "1h"
+fail2ban_findtime: "10m"
+fail2ban_maxretry: 5
 
 # ==========================================
 # 4. Auditd
