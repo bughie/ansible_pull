@@ -1,0 +1,10 @@
+---
+- name: Deploy Secondary Mac SSH Key
+  hosts: all
+  tasks:
+    - name: Add Secondary Mac SSH key to authorized_keys
+      ansible.posix.authorized_key:
+        user: "{{ ansible_user }}"
+        state: present
+        key: "{{ lookup('file', '~/.ssh/ansible.pub') }}"
+        comment: "secondary-mac-ansible-key"
