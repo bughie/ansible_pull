@@ -1,3 +1,4 @@
+---
 all:
   vars:
     ansible_user: linuxadmin
@@ -5,15 +6,15 @@ all:
     ansible_python_interpreter: /usr/bin/python3
 
   children:
+
     webservers:
       hosts:
         web1.networkbughie.net:
-          ansible_host: 10.100.101.198
+          ansible_host: 10.100.100.228
           http_port: 80
 
-        web2:
-          ansible_host: 10.10.0.22
-          ansible_hostname: proxubun3
+        web2.networkbughie.net:
+          ansible_host: 10.10.0.244
           http_port: 8080
 
       vars:
@@ -22,29 +23,25 @@ all:
     appservers:
       hosts:
         appserver:
-          ansible_host: 10.10.0.242
-          ansible_hostname: proxdeb
+          ansible_host: 10.100.100.227
 
         appserver-02:
-          ansible_host: 10.10.0.218
-          ansible_hostname: proxserver1
+          ansible_host: 10.100.100.125
 
         appserver-3:
           ansible_host: 10.100.101.198
-          ansible_hostname: docker-srv
 
         appserver-04:
-          ansible_host: 10.10.0.6
-          ansible_hostname: proxubun4
+          ansible_host: 10.100.101.104
 
     dbservers:
       hosts:
         db-primary:
-          ansible_host: 10.10.0.22
+          ansible_host: 10.10.0.244
           mysql_role: primary
 
         db-replica:
-          ansible_host: 10.100.100.94
+          ansible_host: 10.10.0.248
           mysql_role: replica
 
       vars:
@@ -66,4 +63,3 @@ all:
       vars:
         deployment_environment: production
         monitoring_enabled: true
-
