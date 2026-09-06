@@ -28,3 +28,4 @@
     name: auditd
     state: restarted
     enabled: true
+  when: ansible_virtualization_type not in ['lxc', 'lxd']

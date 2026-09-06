@@ -53,13 +53,18 @@
 # ============================================================
 # AUDITD
 # ============================================================
+- name: Install auditd
+  ansible.builtin.apt:
+    name: auditd
+    state: present
+    update_cache: true
 
 - name: Enable and start auditd
   ansible.builtin.systemd:
     name: auditd
     enabled: true
     state: started
-
+  when: ansible_virtualization_type not in ['lxc', 'lxd']
 # ============================================================
 # UNATTENDED SECURITY UPDATES
 # ============================================================
