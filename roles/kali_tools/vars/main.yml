@@ -1,0 +1,18 @@
+---
+# roles/kali_tools/vars/main.yml
+
+# Kali Metapackages (Choose based on deployment size: top10, default, or large)
+kali_metapackages:
+  - kali-tools-top10
+  - kali-linux-headless
+
+# Specific Pentesting & Security Tools
+kali_individual_tools:
+  - nmap
+  - wireshark
+  - burpsuite
+  - metasploit-framework
+  - john
+  - hashcat
+  - responder
+  - ffuf

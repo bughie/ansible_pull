@@ -1,0 +1,9 @@
+---
+# site.yml
+
+- name: Manage Kali Linux Security Workstations
+  hosts: security_nodes
+  become: true
+  roles:
+    - role: kali_tools
+      when: ansible_distribution == 'Kali'

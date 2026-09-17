@@ -7,7 +7,7 @@ Host ansible-*
     UserKnownHostsFile /dev/null
 
 Host web-server-1
-    HostName 10.10.0.248 
+    HostName 10.10.0.202 
     User ubuntu
     IdentityFile ~/.ssh/id_ed25519.pub
 

@@ -1,0 +1,33 @@
+---
+# roles/kali_tools/tasks/main.yml
+- name: Ensure play is running on Kali Linux
+  ansible.builtin.assert:
+    that:
+      - ansible_distribution == 'Kali'
+    fail_msg: "This role is intended only for Kali Linux hosts."
+
+- name: Update apt repository cache
+  ansible.builtin.apt:
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Upgrade all existing packages to latest Kali versions
+  ansible.builtin.apt:
+    upgrade: dist
+    autoremove: yes
+
+- name: Install and update Kali tool metapackages
+  ansible.builtin.apt:
+    name: "{{ kali_metapackages }}"
+    state: latest
+
+- name: Install and update individual penetration testing tools
+  ansible.builtin.apt:
+    name: "{{ kali_individual_tools }}"
+    state: latest
+
+- name: Update Metasploit Framework database definitions
+  ansible.builtin.command:
+    cmd: msfdb reinit
+  failed_when: false
+  changed_when: false

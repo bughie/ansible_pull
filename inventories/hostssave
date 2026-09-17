@@ -5,15 +5,14 @@ all:
     ansible_python_interpreter: /usr/bin/python3
 
   children:
+    webservers:
     security_nodes:
       hosts:
-        kali-vm.networkbughie.net:
-          ansible_host: 10.10.0.6  # Replace with your Kali IP
-          ansible_user: linuxadmin    # Replace with your Kali username
+        kali01.networkbughie.net:
+          ansible_host: 10.10.0.0  # Replace with your Kali IP
+          ansible_user: kali-vm          # Replace with your Kali username
           ansible_python_interpreter: /usr/bin/python3
 
-    webservers:
-      hosts:
         web1.networkbughie.net:
           ansible_host: 10.10.0.178
           ansible_hostname: appserver-03
@@ -78,3 +77,4 @@ all:
       vars:
         deployment_environment: production
         monitoring_enabled: true
+
